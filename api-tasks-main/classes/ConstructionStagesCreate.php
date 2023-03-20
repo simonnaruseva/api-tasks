@@ -201,4 +201,43 @@ class ConstructionStagesCreate
             throw new InvalidArgumentException('Invalid status');
         }
     }
+
+    /**
+     *@throws InvalidArgumentException If the start date is invalid or the end date is invalid or earlier than the start date.
+     *@throws InvalidArgumentException If the duration unit is invalid.
+     *@return void
+     */
+    public function calculateDuration() {
+
+        if (!$this->startDate || !is_string($this->startDate)) {
+            throw new InvalidArgumentException('Invalid start date');
+        }
+
+        if ($this->endDate && !is_string($this->endDate)) {
+            throw new InvalidArgumentException('Invalid end date');
+        }
+
+        $startTimestamp = strtotime($this->startDate);
+        $endTimestamp = $this->endDate ? strtotime($this->endDate) : null;
+
+        if ($endTimestamp && $endTimestamp <= $startTimestamp) {
+            throw new InvalidArgumentException('End date must be later than start date');
+        }
+
+        switch ($this->durationUnit) {
+            case 'HOURS':
+                $duration = $endTimestamp ? ceil(($endTimestamp - $startTimestamp) / 3600) : null;
+                break;
+            case 'DAYS':
+                $duration = $endTimestamp ? ceil(($endTimestamp - $startTimestamp) / 86400) : null;
+                break;
+            case 'WEEKS':
+                $duration = $endTimestamp ? ceil(($endTimestamp - $startTimestamp) / 604800) : null;
+                break;
+            default:
+                throw new InvalidArgumentException('Invalid duration unit');
+        }
+
+        $this->duration = $duration !== null ? (float) $duration : null;
+    }
 }
