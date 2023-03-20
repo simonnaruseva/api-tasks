@@ -2,10 +2,6 @@
 namespace Database;
 use PDO;
 
-
-
-
-
 class Database
 {
     const name = 'construction_stages';
